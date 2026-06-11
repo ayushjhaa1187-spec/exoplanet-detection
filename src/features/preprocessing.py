@@ -4,7 +4,7 @@ import logging
 
 log = logging.getLogger(__name__)
 
-def bin_and_aggregate(x, y, num_bins, bin_width=None, x_min=None, x_max=None, aggr_fn=np.median):
+def bin_and_aggregate(x, y, num_bins, bin_width=None, x_min=None, x_max=None, aggr_fn=np.nanmedian):
     """Aggregates y-values in uniform intervals (bins) along the x-axis."""
     if num_bins < 2:
         raise ValueError("num_bins must be at least 2.")
@@ -34,6 +34,8 @@ def bin_and_aggregate(x, y, num_bins, bin_width=None, x_min=None, x_max=None, ag
             result[i] = aggr_fn(y[mask])
             bin_counts[i] = np.sum(mask)
     
+    # Replace any remaining NaNs (e.g. from empty bins) with 0
+    result[np.isnan(result)] = 0.0
     return result, bin_counts
 
 class ExoplanetPreprocessor:
@@ -51,6 +53,11 @@ class ExoplanetPreprocessor:
             log.error("Folded lightcurve is None!")
             return np.zeros(self.global_bins), np.zeros(self.local_bins)
         
+        # Remove NaNs from the folded light curve flux
+        flux_vals = folded_lc.flux.value
+        clean_mask = ~np.isnan(flux_vals)
+        folded_lc = folded_lc[clean_mask]
+        
         folded_lc.sort('time')
         
         x = folded_lc.time.value
@@ -63,11 +70,13 @@ class ExoplanetPreprocessor:
         local_view_width = 4 * duration
         local_view, _ = bin_and_aggregate(x, y, self.local_bins, x_min=-local_view_width/2, x_max=local_view_width/2)
         
-        # Normalize: center at 0 and scale to unit variance or similar?
-        # AstroNet usually subtracts median and divides by something.
-        # Here we just ensure they are centered.
-        global_view -= np.median(global_view)
-        local_view -= np.median(local_view)
+        # Normalize: center at 0
+        global_view -= np.nanmedian(global_view)
+        local_view -= np.nanmedian(local_view)
+        
+        # Final safety check for NaNs
+        global_view[np.isnan(global_view)] = 0.0
+        local_view[np.isnan(local_view)] = 0.0
         
         return global_view, local_view
 
