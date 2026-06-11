@@ -1,24 +1,22 @@
 import Link from 'next/link';
 
 const stats = [
-  { label: 'Stars Analyzed', value: '12', icon: '⭐', sub: 'Kepler targets' },
+  { label: 'Stars Analyzed', value: '10', icon: '⭐', sub: 'Kepler targets' },
   { label: 'Candidates Found', value: '5', icon: '🪐', sub: 'Classified by CNN' },
-  { label: 'Model Accuracy', value: 'TBD', icon: '🤖', sub: 'Awaiting training' },
+  { label: 'Model Accuracy', value: 'Training...', icon: '🤖', sub: 'Awaiting training' },
   { label: 'Pipeline Stages', value: '5', icon: '🔬', sub: 'End-to-end' },
 ];
 
 const pipelineSteps = [
   { num: 1, name: 'Fetch', desc: 'Lightkurve + MAST', icon: '📡', color: 'from-blue-600 to-blue-500' },
   { num: 2, name: 'Preprocess', desc: 'Global/Local binning', icon: '⚙️', color: 'from-violet-600 to-violet-500' },
-  { num: 3, name: 'CNN Classify', desc: 'AstroNet + Attention', icon: '🧠', color: 'from-indigo-600 to-indigo-500' },
+  { num: 3, name: 'CNN', desc: 'AstroNet + Attention', icon: '🧠', color: 'from-indigo-600 to-indigo-500' },
   { num: 4, name: 'Vet', desc: 'SNR + Odd-Even', icon: '🔍', color: 'from-purple-600 to-purple-500' },
-  { num: 5, name: 'Fit Transit', desc: 'PyTransit model', icon: '📈', color: 'from-fuchsia-600 to-fuchsia-500' },
+  { num: 5, name: 'Fit', desc: 'PyTransit model', icon: '📈', color: 'from-fuchsia-600 to-fuchsia-500' },
 ];
 
 const recentCandidates = [
-  { id: 'kepler-22b', name: 'Kepler-22b', score: 0.50, period: 16.77, snr: 2.53, label: 'PLANET CANDIDATE', status: 'untrained' },
-  { id: 'kepler-10b', name: 'Kepler-10b', score: 0.50, period: 0.84, snr: 16.2, label: 'PLANET CANDIDATE', status: 'untrained' },
-  { id: 'kepler-452b', name: 'Kepler-452b', score: 0.50, period: 384.8, snr: 10.5, label: 'PLANET CANDIDATE', status: 'untrained' },
+  { id: 'kepler-22b', name: 'Kepler-22b', score: 0.4998, period: 16.774, snr: 2.53, label: 'PLANET CANDIDATE', status: 'baseline_untrained' },
 ];
 
 export default function HomePage() {
@@ -52,7 +50,7 @@ export default function HomePage() {
             id="btn-see-pipeline"
             className="px-6 py-3 rounded-xl border border-slate-700 hover:border-indigo-500/60 text-slate-300 hover:text-indigo-300 font-medium transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0"
           >
-            See Pipeline
+            Pipeline Details
           </Link>
         </div>
       </section>

@@ -1,20 +1,6 @@
 import Link from 'next/link';
-import fs from 'fs';
-import path from 'path';
-
-type Candidate = {
-  id: string;
-  targetName: string;
-  astronet_score: number;
-  label: string;
-  bls_period: number;
-  snr: number;
-  fitted_k: number;
-  odd_even_suspicious: boolean;
-  secondary_eclipse_depth: number;
-  status: string;
-  shortSummary: string;
-};
+import { getCandidates } from '@/lib/data';
+import { Candidate } from '@/lib/types';
 
 function ScoreBadge({ score }: { score: number }) {
   const cls = score >= 0.7 ? 'score-high' : score >= 0.45 ? 'score-mid' : 'score-low';
@@ -37,13 +23,7 @@ function LabelBadge({ label }: { label: string }) {
 }
 
 export default async function CandidatesPage() {
-  const dataPath = path.join(process.cwd(), 'public/data/candidates.json');
-  let candidates: Candidate[] = [];
-  try {
-    candidates = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
-  } catch (e) {
-    console.error('Could not load candidates:', e);
-  }
+  const candidates = await getCandidates();
 
   return (
     <div className="space-y-8">

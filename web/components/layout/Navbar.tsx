@@ -6,6 +6,7 @@ const navLinks = [
   { href: '/', label: 'Home' },
   { href: '/candidates', label: 'Candidates' },
   { href: '/metrics', label: 'Metrics' },
+  { href: '/reports', label: 'Reports' },
   { href: '/about', label: 'About' },
 ];
 
@@ -35,7 +36,7 @@ export default function Navbar() {
             </Link>
           ))}
           <a
-            href="https://github.com"
+            href="https://github.com/ayushjhaa1187-spec/exoplanet-detection"
             target="_blank"
             rel="noopener noreferrer"
             className="ml-3 px-4 py-2 rounded-lg text-sm font-medium border border-slate-700 text-slate-300 hover:border-indigo-500 hover:text-indigo-300 transition-all duration-150 flex items-center gap-2"

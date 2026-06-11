@@ -1,36 +1,10 @@
-import fs from 'fs';
-import path from 'path';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import PlotImage from '@/components/PlotImage';
-
-type CandidateDetail = {
-  id: string;
-  targetName: string;
-  astronet_score: number;
-  label: string;
-  bls_period: number;
-  bls_t0: number;
-  bls_duration: number;
-  snr: number;
-  fitted_k: number;
-  odd_even_suspicious: boolean;
-  secondary_eclipse_depth: number;
-  status: string;
-  shortSummary: string;
-  foldedPlot?: string;
-  diagnosticPlot?: string;
-};
+import { getCandidateById } from '@/lib/data';
+import { Candidate } from '@/lib/types';
 
 type PageParams = Promise<{ id: string }>;
-
-async function getCandidate(id: string): Promise<CandidateDetail | null> {
-  const dataPath = path.join(process.cwd(), 'public/data/candidates.json');
-  try {
-    const all: CandidateDetail[] = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
-    return all.find((c) => c.id === id) ?? null;
-  } catch { return null; }
-}
 
 function VettingCard({ ok, label, detail }: { ok: boolean; label: string; detail: string }) {
   return (
@@ -57,11 +31,12 @@ function MetricRow({ label, value, mono }: { label: string; value: string; mono?
 
 export default async function CandidateDetailPage({ params }: { params: PageParams }) {
   const { id } = await params;
-  const detail = await getCandidate(id);
+  const detail = await getCandidateById(id);
   if (!detail) notFound();
 
   const isFP = detail.label.toLowerCase().includes('false') || detail.label.toLowerCase().includes('suspect');
   const scoreColor = detail.astronet_score >= 0.7 ? 'text-emerald-400' : detail.astronet_score >= 0.45 ? 'text-amber-400' : 'text-rose-400';
+  const isUntrained = detail.status === 'baseline_untrained' || detail.status === 'untrained_baseline';
 
   return (
     <div className="space-y-8 pb-12">
@@ -73,7 +48,7 @@ export default async function CandidateDetailPage({ params }: { params: PagePara
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <h1 className="text-3xl font-bold tracking-tight text-slate-100">{detail.targetName}</h1>
-            <p className="text-slate-400 mt-1 max-w-lg text-sm">{detail.shortSummary}</p>
+            <p className="text-slate-400 mt-1 max-w-lg text-sm">{detail.shortSummary ?? 'No target summary available.'}</p>
           </div>
           <div className="flex items-center gap-3">
             <span className={`px-4 py-2 rounded-xl text-sm font-bold border ${
@@ -105,7 +80,7 @@ export default async function CandidateDetailPage({ params }: { params: PagePara
             <span>0 — False Positive</span>
             <span>1 — Planet Candidate</span>
           </div>
-          {detail.status === 'untrained_baseline' && (
+          {isUntrained && (
             <div className="mt-3 text-xs text-amber-400 bg-amber-500/5 border border-amber-500/20 px-3 py-2 rounded-lg">
               ⚠️ Score is at untrained baseline (~0.5). Will update after model training.
             </div>
@@ -118,8 +93,8 @@ export default async function CandidateDetailPage({ params }: { params: PagePara
         <div className="glass rounded-2xl p-6">
           <h2 className="text-lg font-bold text-slate-200 mb-4">Physical Parameters</h2>
           <MetricRow label="BLS Period" value={`${detail.bls_period.toFixed(4)} days`} mono />
-          <MetricRow label="Transit Midpoint (T0)" value={`${detail.bls_t0.toFixed(4)} BKJD`} mono />
-          <MetricRow label="Transit Duration" value={`${(detail.bls_duration * 24).toFixed(2)} hours`} mono />
+          <MetricRow label="Transit Midpoint (T0)" value={detail.bls_t0 !== undefined ? `${detail.bls_t0.toFixed(4)} BKJD` : 'N/A'} mono />
+          <MetricRow label="Transit Duration" value={detail.bls_duration !== undefined ? `${(detail.bls_duration * 24).toFixed(2)} hours` : 'N/A'} mono />
           <MetricRow label="SNR" value={detail.snr.toFixed(2)} mono />
           <MetricRow label="Radius Ratio k (Rp/Rs)" value={detail.fitted_k.toFixed(4)} mono />
           <MetricRow label="Secondary Eclipse Depth" value={detail.secondary_eclipse_depth.toFixed(4)} mono />
@@ -145,9 +120,9 @@ export default async function CandidateDetailPage({ params }: { params: PagePara
               detail={detail.snr >= 7.1 ? `SNR ${detail.snr.toFixed(1)} exceeds 7.1σ detection threshold.` : `SNR ${detail.snr.toFixed(1)} is below 7.1σ. May be marginal signal.`}
             />
             <VettingCard
-              ok={detail.status !== 'untrained_baseline'}
+              ok={!isUntrained}
               label="Model Training Status"
-              detail={detail.status === 'untrained_baseline' ? 'Model not yet trained. Score is random baseline.' : 'Score from trained model.'}
+              detail={isUntrained ? 'Model not yet trained. Score is random baseline.' : 'Score from trained model.'}
             />
           </div>
         </div>

@@ -1,25 +1,8 @@
-import fs from 'fs';
-import path from 'path';
-
-type Metrics = {
-  experimentName?: string;
-  accuracy?: number;
-  precision?: number;
-  recall?: number;
-  f1?: number;
-  auc?: number;
-  datasetSize?: number;
-  notes?: string;
-};
+import { getMetrics } from '@/lib/data';
+import { ModelMetrics } from '@/lib/types';
 
 export default async function MetricsPage() {
-  const dataPath = path.join(process.cwd(), 'public/data/metrics.json');
-  let metrics: Metrics = {};
-  try {
-    metrics = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
-  } catch (e) {
-    console.error('Could not load metrics:', e);
-  }
+  const metrics = await getMetrics();
 
   const metricCards = [
     { label: 'Accuracy', value: metrics.accuracy, color: 'indigo' },

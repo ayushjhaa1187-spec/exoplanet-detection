@@ -6,10 +6,8 @@ import Navbar from '@/components/layout/Navbar';
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
-  title: 'ExoAstro | AI Exoplanet Detection Pipeline',
-  description:
-    'End-to-end ML pipeline for detecting exoplanet candidates from Kepler light curves using AstroNet CNN with Multi-Head Attention.',
-  keywords: ['exoplanet', 'kepler', 'machine learning', 'astronomy', 'transit', 'CNN'],
+  title: "ExoAstro | AI Exoplanet Detection",
+  description: "End-to-end ML pipeline for Kepler exoplanet candidates",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
