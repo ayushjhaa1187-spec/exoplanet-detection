@@ -2,10 +2,44 @@
 
 @theme {
   --font-sans: var(--font-inter);
+  --color-space-900: #0a0e1a;
+  --color-space-800: #0f1629;
+  --color-space-700: #141d35;
+  --color-nebula: #6366f1;
+  --color-nebula-dark: #4338ca;
+  --color-star: #f0f9ff;
+  --color-planet: #a5b4fc;
 }
 
 @layer base {
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
   body {
     @apply bg-slate-950 text-slate-50;
+    background-image:
+      radial-gradient(ellipse at 20% 50%, rgba(99,102,241,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, rgba(139,92,246,0.06) 0%, transparent 50%);
+    min-height: 100vh;
   }
+}
+
+@layer utilities {
+  .glass {
+    background: rgba(15, 22, 41, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(99, 102, 241, 0.15);
+  }
+  .glow-indigo {
+    box-shadow: 0 0 20px rgba(99,102,241,0.2), 0 0 40px rgba(99,102,241,0.1);
+  }
+  .text-gradient {
+    background: linear-gradient(135deg, #a5b4fc 0%, #818cf8 50%, #c4b5fd 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .score-high { @apply bg-emerald-500/10 text-emerald-400 border border-emerald-500/30; }
+  .score-mid { @apply bg-amber-500/10 text-amber-400 border border-amber-500/30; }
+  .score-low { @apply bg-rose-500/10 text-rose-400 border border-rose-500/30; }
 }

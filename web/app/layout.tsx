@@ -1,27 +1,30 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import Sidebar from "@/components/layout/Sidebar";
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import './globals.css';
+import Navbar from '@/components/layout/Navbar';
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
-  title: "ExoAstro Pipeline",
-  description: "Exoplanet detection and vetting pipeline dashboard.",
+  title: 'ExoAstro | AI Exoplanet Detection Pipeline',
+  description:
+    'End-to-end ML pipeline for detecting exoplanet candidates from Kepler light curves using AstroNet CNN with Multi-Head Attention.',
+  keywords: ['exoplanet', 'kepler', 'machine learning', 'astronomy', 'transit', 'CNN'],
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="dark">
-      <body className={`${inter.className} bg-slate-950 text-slate-50 flex h-screen overflow-hidden`}>
-        <Sidebar />
-        <main className="flex-1 overflow-y-auto p-8">
-          {children}
-        </main>
+    <html lang="en">
+      <body className={`${inter.variable} font-sans antialiased`}>
+        <div className="flex flex-col min-h-screen">
+          <Navbar />
+          <main className="flex-1 px-4 py-8 max-w-7xl mx-auto w-full">
+            {children}
+          </main>
+          <footer className="border-t border-slate-800/50 py-6 text-center text-xs text-slate-600">
+            ExoAstro Pipeline &mdash; AstroNet CNN + PyTransit + Lightkurve &mdash; v1.0-beta
+          </footer>
+        </div>
       </body>
     </html>
   );

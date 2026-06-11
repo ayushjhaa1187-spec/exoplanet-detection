@@ -1,50 +1,113 @@
 import Link from 'next/link';
-import { CandidateSummary } from '@/lib/types';
 import fs from 'fs';
 import path from 'path';
 
+type Candidate = {
+  id: string;
+  targetName: string;
+  astronet_score: number;
+  label: string;
+  bls_period: number;
+  snr: number;
+  fitted_k: number;
+  odd_even_suspicious: boolean;
+  secondary_eclipse_depth: number;
+  status: string;
+  shortSummary: string;
+};
+
+function ScoreBadge({ score }: { score: number }) {
+  const cls = score >= 0.7 ? 'score-high' : score >= 0.45 ? 'score-mid' : 'score-low';
+  return (
+    <span className={`px-2 py-0.5 rounded text-xs font-mono font-bold ${cls}`}>
+      {score.toFixed(3)}
+    </span>
+  );
+}
+
+function LabelBadge({ label }: { label: string }) {
+  const isFP = label.toLowerCase().includes('false') || label.toLowerCase().includes('suspect');
+  return (
+    <span className={`px-2 py-1 rounded-md text-xs font-semibold ${
+      isFP ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+    }`}>
+      {label}
+    </span>
+  );
+}
+
 export default async function CandidatesPage() {
   const dataPath = path.join(process.cwd(), 'public/data/candidates.json');
-  let candidates: CandidateSummary[] = [];
+  let candidates: Candidate[] = [];
   try {
-    const fileContents = fs.readFileSync(dataPath, 'utf8');
-    candidates = JSON.parse(fileContents);
-  } catch (err) {
-    console.error(err);
+    candidates = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+  } catch (e) {
+    console.error('Could not load candidates:', e);
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
-      <header>
-        <h1 className="text-3xl font-bold">Candidates</h1>
-        <p className="text-slate-400 mt-2">Browse classified targets and vetting results.</p>
+    <div className="space-y-8">
+      <header className="space-y-1">
+        <h1 className="text-3xl font-bold tracking-tight">Candidate List</h1>
+        <p className="text-slate-400">Kepler targets classified by the ExoAstro pipeline. {candidates.length} targets processed.</p>
       </header>
 
-      <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
-        <table className="w-full text-left border-collapse">
+      {/* Info banner */}
+      <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-amber-500/5 border border-amber-500/20 text-amber-300 text-sm">
+        <span className="text-lg mt-0.5">⚠️</span>
+        <div>
+          <strong>Note:</strong> AstroNet scores are currently at untrained baseline (~0.5). Scores will update to real predictions after model training on the Kepler DR24 TCE dataset.
+        </div>
+      </div>
+
+      <div className="glass rounded-2xl overflow-hidden">
+        <table className="w-full text-left">
           <thead>
-            <tr className="bg-slate-800/50 border-b border-slate-800 text-sm font-medium text-slate-400">
-              <th className="p-4">Target ID</th>
-              <th className="p-4">Label</th>
-              <th className="p-4">Confidence</th>
-              <th className="p-4">Summary</th>
-              <th className="p-4 text-right">Action</th>
+            <tr className="border-b border-slate-800/60 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              <th className="px-6 py-4">Target</th>
+              <th className="px-6 py-4">Classification</th>
+              <th className="px-6 py-4">AstroNet Score</th>
+              <th className="px-6 py-4">Period (days)</th>
+              <th className="px-6 py-4">SNR</th>
+              <th className="px-6 py-4">k (Rp/Rs)</th>
+              <th className="px-6 py-4">Odd/Even</th>
+              <th className="px-6 py-4"></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800 text-sm">
+          <tbody className="divide-y divide-slate-800/40">
             {candidates.map((c) => (
-              <tr key={c.id} className="hover:bg-slate-800/20 transition group">
-                <td className="p-4 font-medium text-indigo-300">{c.targetName}</td>
-                <td className="p-4">
-                  <span className={`px-2 py-1 rounded text-xs ${c.label === 'Confirmed Planet' ? 'bg-emerald-900/30 text-emerald-400 border border-emerald-800' : 'bg-rose-900/30 text-rose-400 border border-rose-800'}`}>
-                    {c.label}
+              <tr key={c.id} className="hover:bg-slate-800/20 transition-colors duration-150 group">
+                <td className="px-6 py-4">
+                  <div className="font-semibold text-slate-200">{c.targetName}</div>
+                  <div className="text-xs text-slate-600 mt-0.5">{c.status}</div>
+                </td>
+                <td className="px-6 py-4"><LabelBadge label={c.label} /></td>
+                <td className="px-6 py-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-16 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                      <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${c.astronet_score * 100}%` }} />
+                    </div>
+                    <ScoreBadge score={c.astronet_score} />
+                  </div>
+                </td>
+                <td className="px-6 py-4 font-mono text-sm text-slate-300">{c.bls_period.toFixed(3)}</td>
+                <td className="px-6 py-4 font-mono text-sm">
+                  <span className={c.snr >= 7.1 ? 'text-emerald-400' : c.snr >= 3 ? 'text-amber-400' : 'text-rose-400'}>
+                    {c.snr.toFixed(1)}
                   </span>
                 </td>
-                <td className="p-4">{(c.confidence * 100).toFixed(1)}%</td>
-                <td className="p-4 text-slate-400 truncate max-w-xs">{c.shortSummary}</td>
-                <td className="p-4 text-right">
-                  <Link href={`/candidates/${c.id}`} className="text-indigo-400 hover:text-indigo-300 font-medium opacity-0 group-hover:opacity-100 transition">
-                    View Details &rarr;
+                <td className="px-6 py-4 font-mono text-sm text-slate-300">{c.fitted_k.toFixed(4)}</td>
+                <td className="px-6 py-4">
+                  <span className={c.odd_even_suspicious ? 'text-rose-400 text-sm' : 'text-emerald-400 text-sm'}>
+                    {c.odd_even_suspicious ? '⚠️ Suspicious' : '✅ OK'}
+                  </span>
+                </td>
+                <td className="px-6 py-4 text-right">
+                  <Link
+                    href={`/candidates/${c.id}`}
+                    className="text-xs text-indigo-400 hover:text-indigo-300 opacity-0 group-hover:opacity-100 transition-all duration-150 font-medium"
+                  >
+                    Details →
                   </Link>
                 </td>
               </tr>
