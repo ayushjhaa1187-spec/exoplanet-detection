@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.env
+.venv
+venv/
+
+# Data and Models
+data/raw/*
+data/interim/*
+data/processed/*
+!data/**/.gitkeep
+models/*.h5
+models/*.keras
+outputs/reports/*.pdf
+outputs/plots/*.png
+
+# Next.js / Web
+web/node_modules/
+web/.next/
+web/out/
+web/build/
+web/.env*.local
+web/.vercel
+
+# OS
+.DS_Store
+Thumbs.db

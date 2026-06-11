@@ -1,0 +1,32 @@
+[
+  {
+    "id": "Kepler-10b",
+    "targetName": "Kepler-10b",
+    "confidence": 0.98,
+    "label": "Confirmed Planet",
+    "shortSummary": "Strong transit signal detected at 0.837d with a clear SNR of 16.2. PyTransit model converged successfully.",
+    "rawPlot": "/plots/Kepler-10b_raw.png",
+    "cleanedPlot": "/plots/Kepler-10b_clean.png",
+    "foldedPlot": "/plots/Kepler-10b_folded.png"
+  },
+  {
+    "id": "Kepler-90i",
+    "targetName": "Kepler-90i",
+    "confidence": 0.85,
+    "label": "Confirmed Planet",
+    "shortSummary": "Multiple transit events detected. Needs further resolution on secondary eclipses.",
+    "rawPlot": "/plots/Kepler-90i_raw.png",
+    "cleanedPlot": "/plots/Kepler-90i_clean.png",
+    "foldedPlot": "/plots/Kepler-90i_folded.png"
+  },
+  {
+    "id": "KIC-1026473",
+    "targetName": "KIC 1026473",
+    "confidence": 0.12,
+    "label": "False Positive",
+    "shortSummary": "Odd-even transit depth discrepancy suggests an Eclipsing Binary.",
+    "rawPlot": "/plots/KIC_1026473_raw.png",
+    "cleanedPlot": "/plots/KIC_1026473_clean.png",
+    "foldedPlot": "/plots/KIC_1026473_folded.png"
+  }
+]
