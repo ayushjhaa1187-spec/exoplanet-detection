@@ -285,6 +285,11 @@ def main():
 
     log.info("Training complete.")
     log.info(f"Best validation accuracy: {max(history.history['val_accuracy']):.4f}")
+    
+    # Explicitly save final weights
+    final_model_path = args.model_path.replace('.h5', '_final.keras')
+    astronet.save(final_model_path)
+    log.info(f"Final model saved to {final_model_path}")
 
 if __name__ == "__main__":
     main()

@@ -58,10 +58,11 @@ class AstroNetModel:
         for _ in range(4):
             x = layers.Dense(512, activation='relu')(x)
         
-        output = layers.Dense(1, activation='sigmoid', name='output')(x)
+        output = layers.Dense(4, activation='softmax', name='output')(x)
         
         model = models.Model(inputs=[global_input, local_input], outputs=output)
-        model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+        opt = tf.keras.optimizers.Adam(learning_rate=1e-4, clipnorm=1.0)
+        model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['accuracy'])
         return model
 
     def summary(self):
@@ -123,7 +124,9 @@ class AdvancedAstroNetModel(AstroNetModel):
                 x = layers.Conv1D(filters, kernel_size, activation='relu', padding='same')(x)
             
             # Add Attention after each block
-            attention_out = layers.MultiHeadAttention(num_heads=2, key_dim=filters // 2)(x, x)
+            # Normalize inputs to attention to prevent explosion
+            x_norm = layers.LayerNormalization()(x)
+            attention_out = layers.MultiHeadAttention(num_heads=2, key_dim=filters // 2)(x_norm, x_norm)
             x = layers.Add()([x, attention_out])
             x = layers.LayerNormalization()(x)
 

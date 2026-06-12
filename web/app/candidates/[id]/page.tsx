@@ -33,8 +33,10 @@ export default async function CandidateDetailPage({ params }: { params: PagePara
   const detail = await getCandidateById(id);
   if (!detail) notFound();
 
-  const isFP = detail.label.toLowerCase().includes('false') || detail.label.toLowerCase().includes('suspect');
-  const scoreColor = detail.astronet_score >= 0.7 ? 'text-emerald-600' : detail.astronet_score >= 0.45 ? 'text-amber-600' : 'text-rose-600';
+  const effectiveLabel = detail.classification || detail.label || 'Unknown';
+  const isFP = effectiveLabel.toLowerCase().includes('false') || effectiveLabel.toLowerCase().includes('suspect') || effectiveLabel.toLowerCase().includes('noise') || effectiveLabel.toLowerCase().includes('blend') || effectiveLabel.toLowerCase().includes('eclipse');
+  const score = detail.confidence ?? detail.astronet_score ?? 0;
+  const scoreColor = score >= 0.7 ? 'text-emerald-600' : score >= 0.45 ? 'text-amber-600' : 'text-rose-600';
   const isUntrained = detail.status === 'baseline_untrained' || detail.status === 'untrained_baseline';
 
   return (
@@ -53,7 +55,7 @@ export default async function CandidateDetailPage({ params }: { params: PagePara
             <span className={`px-4 py-2 rounded-xl text-sm font-bold border ${
               isFP ? 'bg-rose-50 text-rose-700 border-rose-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200'
             }`}>
-              {detail.label}
+              {effectiveLabel}
             </span>
           </div>
         </div>
@@ -62,21 +64,21 @@ export default async function CandidateDetailPage({ params }: { params: PagePara
       {/* Score Hero */}
       <div className="card p-8 flex flex-col md:flex-row items-center gap-8 border-t-4 border-t-brand-primary">
         <div className="text-center md:min-w-[200px]">
-          <div className="text-xs text-text-secondary uppercase tracking-wider mb-2 font-semibold">AstroNet Score</div>
+          <div className="text-xs text-text-secondary uppercase tracking-wider mb-2 font-semibold">Confidence Score</div>
           <div className={`text-6xl font-bold font-mono ${scoreColor}`}>
-            {detail.astronet_score.toFixed(3)}
+            {score.toFixed(3)}
           </div>
-          <div className="text-xs text-text-secondary mt-3">0.0 = FP · 1.0 = Planet</div>
+          <div className="text-xs text-text-secondary mt-3">0.0 = Low · 1.0 = High</div>
         </div>
         <div className="flex-1 w-full bg-surface-alt rounded-2xl p-6 border border-border-subtle">
           <div className="flex justify-between text-xs text-text-secondary mb-2 font-medium">
-            <span>0.0 (False Positive)</span>
-            <span>1.0 (Candidate)</span>
+            <span>0.0 (Low Confidence)</span>
+            <span>1.0 (High Confidence)</span>
           </div>
           <div className="w-full h-4 bg-border-subtle rounded-full overflow-hidden mb-2">
             <div
-              className={`h-full rounded-full transition-all ${detail.astronet_score >= 0.7 ? 'bg-emerald-500' : detail.astronet_score >= 0.45 ? 'bg-amber-500' : 'bg-rose-500'}`}
-              style={{ width: `${detail.astronet_score * 100}%` }}
+              className={`h-full rounded-full transition-all ${score >= 0.7 ? 'bg-emerald-500' : score >= 0.45 ? 'bg-amber-500' : 'bg-rose-500'}`}
+              style={{ width: `${score * 100}%` }}
             />
           </div>
           

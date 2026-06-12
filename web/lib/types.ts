@@ -1,8 +1,11 @@
 export interface Candidate {
   id: string;
   targetName: string;
-  astronet_score: number;
-  label: string;
+  astronet_score?: number;
+  label?: string;
+  classification?: string;
+  confidence?: number;
+  astronet_probs?: number[];
   bls_period: number;
   bls_t0?: number;
   bls_duration?: number;

@@ -1,4 +1,5 @@
 import logging
+import numpy as np
 from .data.data_loader import ExoplanetDataFetcher
 from .features.preprocessing import ExoplanetPreprocessor
 from .models.model import AstroNetModel
@@ -39,9 +40,13 @@ class ExoAstroPipeline:
         # 4. Preprocessing for CNN
         global_view, local_view = self.preprocessor.process(lc_clean, period, t0, duration)
         
-        # 5. AstroNet Classification
+        # 5. AstroNet Classification (4 classes: Transit, EB, Blend, Noise)
         score = self.model.predict(global_view, local_view)
-        log.info(f"AstroNet classification score: {score[0][0]:.4f}")
+        probs = score[0]
+        
+        classes = ['Transit', 'Eclipsing Binary', 'Blend', 'Noise']
+        base_class_idx = np.argmax(probs)
+        log.info(f"AstroNet base classification: {classes[base_class_idx]} with probs {probs}")
         
         # 6. Scientific Refinement (Optional - using folded data for speed)
         folded = lc_clean.fold(period=period, epoch_time=t0)
@@ -61,9 +66,28 @@ class ExoAstroPipeline:
         odd_even = self.vetter.odd_even_test(lc_clean, period, t0, duration)
         secondary = self.vetter.secondary_eclipse_test(lc_clean, period, t0, duration)
         
+        # Algorithmic Override / Vetting Logic
+        final_class = classes[base_class_idx]
+        confidence = float(probs[base_class_idx])
+        
+        if odd_even['is_suspicious']:
+            log.info("Odd-Even test is suspicious. Overriding towards Eclipsing Binary.")
+            if final_class == 'Transit':
+                final_class = 'Eclipsing Binary'
+                # Re-adjust confidence heuristically
+                confidence = max(0.5, confidence * 0.8)
+                
+        if secondary > 0.01: # High secondary depth
+            log.info("Significant secondary eclipse detected. Overriding towards Eclipsing Binary.")
+            if final_class == 'Transit':
+                final_class = 'Eclipsing Binary'
+                confidence = max(0.5, confidence * 0.8)
+
         results = {
             'target_id': target_id,
-            'astronet_score': float(score[0][0]),
+            'classification': final_class,
+            'confidence': confidence,
+            'astronet_probs': probs.tolist(),
             'snr': snr,
             'odd_even_suspicious': odd_even['is_suspicious'],
             'secondary_eclipse_depth': secondary,

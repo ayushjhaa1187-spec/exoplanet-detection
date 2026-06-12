@@ -11,15 +11,16 @@ function ScoreBadge({ score }: { score: number }) {
   return <span className="status-false">{score.toFixed(3)}</span>;
 }
 
-function LabelBadge({ label }: { label: string }) {
-  const isFP = label.toLowerCase().includes('false') || label.toLowerCase().includes('suspect');
+function LabelBadge({ label, classification }: { label?: string; classification?: string }) {
+  const effectiveLabel = classification || label || 'Unknown';
+  const isFP = effectiveLabel.toLowerCase().includes('false') || effectiveLabel.toLowerCase().includes('suspect') || effectiveLabel.toLowerCase().includes('noise') || effectiveLabel.toLowerCase().includes('blend') || effectiveLabel.toLowerCase().includes('eclipse');
   if (isFP) {
-    return <span className="status-false">{label}</span>;
+    return <span className="status-false">{effectiveLabel}</span>;
   }
-  if (label.toLowerCase().includes('planet') || label.toLowerCase().includes('candidate')) {
-    return <span className="status-strong">{label}</span>;
+  if (effectiveLabel.toLowerCase().includes('planet') || effectiveLabel.toLowerCase().includes('candidate') || effectiveLabel.toLowerCase().includes('transit')) {
+    return <span className="status-strong">{effectiveLabel}</span>;
   }
-  return <span className="status-uncertain">{label}</span>;
+  return <span className="status-uncertain">{effectiveLabel}</span>;
 }
 
 function EmptyState() {
@@ -64,7 +65,7 @@ export default async function CandidatesPage() {
               <tr className="border-b border-border-subtle text-xs font-semibold text-text-secondary uppercase tracking-wider bg-surface-alt/80">
                 <th className="px-6 py-4">Target</th>
                 <th className="px-6 py-4">Classification</th>
-                <th className="px-6 py-4">AstroNet Score</th>
+                <th className="px-6 py-4">Confidence</th>
                 <th className="px-6 py-4 text-right">Period (d)</th>
                 <th className="px-6 py-4 text-right">SNR</th>
                 <th className="px-6 py-4 text-right">k (Rp/Rs)</th>
@@ -79,13 +80,13 @@ export default async function CandidatesPage() {
                     <div className="font-semibold text-text-primary">{c.targetName}</div>
                     <div className="text-xs text-text-secondary mt-0.5">{c.status}</div>
                   </td>
-                  <td className="px-6 py-4"><LabelBadge label={c.label} /></td>
+                  <td className="px-6 py-4"><LabelBadge label={c.label} classification={c.classification} /></td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <div className="w-16 h-1.5 bg-border-subtle rounded-full overflow-hidden">
-                        <div className="h-full bg-brand-primary rounded-full" style={{ width: `${c.astronet_score * 100}%` }} />
+                        <div className="h-full bg-brand-primary rounded-full" style={{ width: `${(c.confidence ?? c.astronet_score ?? 0) * 100}%` }} />
                       </div>
-                      <ScoreBadge score={c.astronet_score} />
+                      <ScoreBadge score={c.confidence ?? c.astronet_score ?? 0} />
                     </div>
                   </td>
                   <td className="px-6 py-4 font-mono text-sm text-text-secondary text-right">{c.bls_period.toFixed(3)}</td>
