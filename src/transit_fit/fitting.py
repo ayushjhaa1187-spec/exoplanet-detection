@@ -38,8 +38,37 @@ class ExoplanetFitter:
                        method='Nelder-Mead', tol=1e-6)
         
         if res.success:
-            log.info("Fit successful.")
             return res.x
         else:
             log.warning("Fit failed.")
             return initial_params
+
+    def fit_with_uncertainty(self, times, flux, initial_params, n_bootstraps=50):
+        log.info(f"Running residual bootstrap with {n_bootstraps} iterations...")
+        best_fit_params = self.fit(times, flux, initial_params)
+        model_flux = self.transit_model(best_fit_params, times)
+        residuals = flux - model_flux
+        
+        bootstrap_params = []
+        for _ in range(n_bootstraps):
+            # Resample residuals with replacement
+            resampled_residuals = np.random.choice(residuals, size=len(residuals), replace=True)
+            synthetic_flux = model_flux + resampled_residuals
+            
+            fit_p = self.fit(times, synthetic_flux, best_fit_params)
+            bootstrap_params.append(fit_p)
+            
+        bootstrap_params = np.array(bootstrap_params)
+        
+        # Calculate 1-sigma bounds (16th and 84th percentiles)
+        lower_bound = np.percentile(bootstrap_params, 16, axis=0)
+        upper_bound = np.percentile(bootstrap_params, 84, axis=0)
+        
+        err_minus = best_fit_params - lower_bound
+        err_plus = upper_bound - best_fit_params
+        
+        return {
+            'best_fit': best_fit_params,
+            'err_minus': err_minus,
+            'err_plus': err_plus
+        }
