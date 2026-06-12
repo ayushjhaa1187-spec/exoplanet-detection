@@ -1,0 +1,7 @@
+# TESS Sector Configuration
+sector: 27
+cadence: "short"
+mission: "TESS"
+author: "SPOC"
+max_targets: 100
+output_dir: "outputs/sector_27"

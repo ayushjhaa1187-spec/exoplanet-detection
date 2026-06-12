@@ -1,0 +1,2 @@
+TIC_ID,Period,Depth,Duration,SNR,Base_Class,Final_Class,Confidence,Explanation,Ranking_Score
+TIC 25155310,3.2893414341434997,0.00016779044502057694,0.1,2.9914827588537425,eclipsing_binary,noise_no_signal,0.8762795329093933,SNR (2.99) is below threshold (7.1). Likely noise. Significant depth difference between odd and even transits. Likely Eclipsing Binary.,2.6213751146348607

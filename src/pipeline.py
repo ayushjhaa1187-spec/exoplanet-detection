@@ -16,7 +16,7 @@ class ExoAstroPipeline:
         self.fitter = ExoplanetFitter()
         self.vetter = ExoplanetVetter()
 
-    def run(self, target_id, author='Kepler', **fetch_kwargs):
+    def run(self, target_id, author='SPOC', **fetch_kwargs):
         log.info(f"Starting pipeline for target: {target_id}")
         
         # 1. Fetch Data

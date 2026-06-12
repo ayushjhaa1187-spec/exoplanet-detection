@@ -8,10 +8,10 @@ class ExoplanetDataFetcher:
     def __init__(self):
         pass
 
-    def fetch_lightcurve(self, target_id, author='Kepler', quarter=None, **kwargs):
+    def fetch_lightcurve(self, target_id, author='SPOC', mission='TESS', sector=None, quarter=None, **kwargs):
         """Fetch lightcurve for a given target."""
         log.info(f"Searching for lightcurve: {target_id}")
-        search_result = lk.search_lightcurve(target_id, author=author, quarter=quarter, **kwargs)
+        search_result = lk.search_lightcurve(target_id, author=author, mission=mission, sector=sector, quarter=quarter, **kwargs)
         if len(search_result) == 0:
             raise ValueError(f"No lightcurve found for {target_id}")
         
