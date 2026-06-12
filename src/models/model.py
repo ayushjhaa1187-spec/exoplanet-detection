@@ -1,5 +1,6 @@
 import tensorflow as tf
 from tensorflow.keras import layers, models
+import numpy as np
 import logging
 
 log = logging.getLogger(__name__)
@@ -67,6 +68,35 @@ class AstroNetModel:
         return self.model.summary()
 
     def predict(self, global_view, local_view):
+        # Clean NaNs
+        global_view = np.nan_to_num(global_view, nan=0.0)
+        local_view = np.nan_to_num(local_view, nan=0.0)
+        
+        # Center and handle unnormalized views
+        med_g = np.nanmedian(global_view)
+        if med_g > 0.5:
+            global_view = global_view.copy()
+            global_view[global_view == 0.0] = med_g
+            global_view = global_view - med_g
+        else:
+            global_view = global_view - med_g
+            
+        med_l = np.nanmedian(local_view)
+        if med_l > 0.5:
+            local_view = local_view.copy()
+            local_view[local_view == 0.0] = med_l
+            local_view = local_view - med_l
+        else:
+            local_view = local_view - med_l
+
+        # Scale to standard deviation 1.0
+        std_g = np.std(global_view)
+        if std_g > 0.0:
+            global_view = global_view / std_g
+        std_l = np.std(local_view)
+        if std_l > 0.0:
+            local_view = local_view / std_l
+
         # Reshape for Keras (batch, length, channels)
         global_view = global_view.reshape((1, self.global_bins, 1))
         local_view = local_view.reshape((1, self.local_bins, 1))

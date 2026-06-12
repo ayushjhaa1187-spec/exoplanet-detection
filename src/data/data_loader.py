@@ -37,15 +37,24 @@ class ExoplanetDataFetcher:
         """Find transit parameters using Box Least Squares (BLS)."""
         log.info("Running BLS to find transit parameters...")
         
+        # Bin the lightcurve to 15-minute intervals to speed up BLS on multi-quarter data
+        log.info(f"Original lightcurve points: {len(lc)}")
+        if len(lc) > 20000:
+            log.info("Binning lightcurve to speed up BLS search...")
+            lc_search = lc.bin(time_bin_size=15/1440) # 15 minutes in days
+            log.info(f"Binned lightcurve points: {len(lc_search)}")
+        else:
+            lc_search = lc
+        
         # Limit the maximum period to half the observation baseline to ensure at least 2 transits can occur
-        baseline = lc.time.value[-1] - lc.time.value[0]
+        baseline = lc_search.time.value[-1] - lc_search.time.value[0]
         max_p = min(float(maximum_period), baseline / 2.0)
         
-        # Scale the number of search points proportionally to search range, capped between 10k and 100k
+        # Scale the number of search points proportionally to search range, capped between 10k and 50k
         num_points = int(10000 * (max_p / 20.0))
-        num_points = max(10000, min(num_points, 100000))
+        num_points = max(10000, min(num_points, 50000))
         
-        periodogram = lc.to_periodogram(method='bls', period=np.linspace(0.5, max_p, num_points))
+        periodogram = lc_search.to_periodogram(method='bls', period=np.linspace(0.5, max_p, num_points))
         
         best_fit = periodogram.period_at_max_power
         t0 = periodogram.transit_time_at_max_power

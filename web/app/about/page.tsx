@@ -33,10 +33,10 @@ export default function AboutPage() {
   ];
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-12 py-4">
       <header className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">About ExoAstro</h1>
-        <p className="text-slate-400 max-w-2xl">
+        <h1 className="text-3xl font-bold tracking-tight text-text-primary">About ExoAstro</h1>
+        <p className="text-text-secondary max-w-2xl text-lg">
           An end-to-end machine learning pipeline for detecting exoplanet candidates in Kepler photometric data.
           Every component is purpose-built for this platform.
         </p>
@@ -44,27 +44,28 @@ export default function AboutPage() {
 
       {/* Architecture */}
       <section>
-        <h2 className="text-xl font-bold text-slate-200 mb-6">Pipeline Architecture</h2>
-        <div className="space-y-4">
+        <h2 className="text-xl font-bold text-text-primary mb-6">Pipeline Architecture</h2>
+        <div className="space-y-4 relative">
+          <div className="absolute left-6 top-8 bottom-8 w-px bg-border-subtle hidden md:block"></div>
           {pipelineStages.map((stage) => (
-            <div key={stage.num} className="glass rounded-2xl p-6 flex gap-5">
-              <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-indigo-900/30 border border-indigo-700/30 flex items-center justify-center text-2xl">
+            <div key={stage.num} className="card p-6 flex gap-6 relative z-10 hover:border-brand-primary/30 transition-colors">
+              <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-surface-alt border border-border-subtle flex items-center justify-center text-2xl shadow-sm">
                 {stage.icon}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-3 mb-2">
-                  <span className="text-xs text-slate-600 font-mono">Step {stage.num}</span>
-                  <h3 className="font-bold text-slate-200">{stage.name}</h3>
+                  <span className="text-xs text-brand-secondary font-mono bg-brand-secondary/10 px-2 py-0.5 rounded font-bold">Step {stage.num}</span>
+                  <h3 className="font-bold text-text-primary text-lg">{stage.name}</h3>
                 </div>
-                <p className="text-sm text-slate-400 mb-3">{stage.what}</p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                  <div className="bg-slate-900/50 rounded-lg px-3 py-2">
-                    <span className="text-indigo-400 font-semibold">Built: </span>
-                    <span className="text-slate-400">{stage.built}</span>
+                <p className="text-sm text-text-secondary mb-4">{stage.what}</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                  <div className="bg-surface-alt rounded-lg px-4 py-3 border border-border-subtle">
+                    <span className="text-brand-primary font-semibold block mb-1 uppercase tracking-wider text-[10px]">Built</span>
+                    <span className="text-text-secondary">{stage.built}</span>
                   </div>
-                  <div className="bg-slate-900/50 rounded-lg px-3 py-2">
-                    <span className="text-violet-400 font-semibold">Sources: </span>
-                    <span className="text-slate-400">{stage.source}</span>
+                  <div className="bg-surface-alt rounded-lg px-4 py-3 border border-border-subtle">
+                    <span className="text-brand-secondary font-semibold block mb-1 uppercase tracking-wider text-[10px]">Sources</span>
+                    <span className="text-text-secondary">{stage.source}</span>
                   </div>
                 </div>
               </div>
@@ -74,9 +75,9 @@ export default function AboutPage() {
       </section>
 
       {/* Tech Stack */}
-      <section className="glass rounded-2xl p-8">
-        <h2 className="text-xl font-bold text-slate-200 mb-4">Tech Stack</h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+      <section className="card p-8 bg-gradient-to-br from-surface-card to-surface-alt/50 border-t-4 border-t-brand-primary">
+        <h2 className="text-xl font-bold text-text-primary mb-6">Tech Stack</h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {[
             { name: 'Lightkurve', role: 'Light curve fetch + BLS', type: 'Python' },
             { name: 'TensorFlow / Keras', role: 'CNN + Attention model', type: 'Python' },
@@ -85,10 +86,10 @@ export default function AboutPage() {
             { name: 'NumPy / Matplotlib', role: 'Data processing + plots', type: 'Python' },
             { name: 'Next.js 16 + React 19', role: 'Dashboard frontend', type: 'TypeScript' },
           ].map((tech) => (
-            <div key={tech.name} className="bg-slate-900/50 rounded-xl p-4 border border-slate-800/50">
-              <div className="text-sm font-semibold text-slate-200">{tech.name}</div>
-              <div className="text-xs text-slate-500 mt-1">{tech.role}</div>
-              <div className="text-xs text-indigo-400 mt-2 font-mono">{tech.type}</div>
+            <div key={tech.name} className="bg-surface-card rounded-xl p-5 border border-border-subtle shadow-sm hover:shadow-md transition-shadow">
+              <div className="text-sm font-semibold text-text-primary">{tech.name}</div>
+              <div className="text-xs text-text-secondary mt-1">{tech.role}</div>
+              <div className="text-xs text-brand-primary mt-3 font-mono font-medium">{tech.type}</div>
             </div>
           ))}
         </div>

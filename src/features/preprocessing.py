@@ -18,11 +18,11 @@ def bin_and_aggregate(x, y, num_bins, bin_width=None, x_min=None, x_max=None, ag
     
     if x_min >= x_max:
         return np.zeros(num_bins), np.zeros(num_bins)
-
+ 
     bin_width = bin_width if bin_width is not None else (x_max - x_min) / num_bins
     bin_spacing = (x_max - x_min - bin_width) / (num_bins - 1) if num_bins > 1 else 0
 
-    result = np.zeros(num_bins)
+    result = np.full(num_bins, np.nan)
     bin_counts = np.zeros(num_bins, dtype=int)
 
     # Simplified binning for efficiency
@@ -34,9 +34,8 @@ def bin_and_aggregate(x, y, num_bins, bin_width=None, x_min=None, x_max=None, ag
             result[i] = aggr_fn(y[mask])
             bin_counts[i] = np.sum(mask)
     
-    # Replace any remaining NaNs (e.g. from empty bins) with 0
-    result[np.isnan(result)] = 0.0
     return result, bin_counts
+
 
 class ExoplanetPreprocessor:
     def __init__(self, global_bins=2001, local_bins=201):
@@ -70,11 +69,11 @@ class ExoplanetPreprocessor:
         local_view_width = 4 * duration
         local_view, _ = bin_and_aggregate(x, y, self.local_bins, x_min=-local_view_width/2, x_max=local_view_width/2)
         
-        # Normalize: center at 0
+        # Normalize: center at 0, ignoring NaNs
         global_view -= np.nanmedian(global_view)
         local_view -= np.nanmedian(local_view)
         
-        # Final safety check for NaNs
+        # Final safety check for NaNs: fill empty bins (which are NaN) with 0.0 (baseline)
         global_view[np.isnan(global_view)] = 0.0
         local_view[np.isnan(local_view)] = 0.0
         

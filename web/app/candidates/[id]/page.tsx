@@ -2,19 +2,18 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import PlotImage from '@/components/PlotImage';
 import { getCandidateById } from '@/lib/data';
-import { Candidate } from '@/lib/types';
 
 type PageParams = Promise<{ id: string }>;
 
 function VettingCard({ ok, label, detail }: { ok: boolean; label: string; detail: string }) {
   return (
     <div className={`flex items-start gap-3 p-4 rounded-xl border ${
-      ok ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-rose-500/5 border-rose-500/20'
+      ok ? 'bg-emerald-50 border-emerald-200' : 'bg-rose-50 border-rose-200'
     }`}>
       <span className="text-lg mt-0.5">{ok ? '✅' : '⚠️'}</span>
       <div>
-        <div className={`text-sm font-semibold ${ok ? 'text-emerald-300' : 'text-rose-300'}`}>{label}</div>
-        <div className="text-xs text-slate-400 mt-0.5">{detail}</div>
+        <div className={`text-sm font-semibold ${ok ? 'text-emerald-800' : 'text-rose-800'}`}>{label}</div>
+        <div className={`text-xs mt-0.5 ${ok ? 'text-emerald-700/80' : 'text-rose-700/80'}`}>{detail}</div>
       </div>
     </div>
   );
@@ -22,9 +21,9 @@ function VettingCard({ ok, label, detail }: { ok: boolean; label: string; detail
 
 function MetricRow({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
   return (
-    <div className="flex items-center justify-between py-3 border-b border-slate-800/50 last:border-0">
-      <span className="text-sm text-slate-400">{label}</span>
-      <span className={`text-sm font-semibold text-slate-100 ${mono ? 'font-mono' : ''}`}>{value}</span>
+    <div className="flex items-center justify-between py-3 border-b border-border-subtle last:border-0">
+      <span className="text-sm text-text-secondary">{label}</span>
+      <span className={`text-sm font-semibold text-text-primary ${mono ? 'font-mono' : ''}`}>{value}</span>
     </div>
   );
 }
@@ -35,24 +34,24 @@ export default async function CandidateDetailPage({ params }: { params: PagePara
   if (!detail) notFound();
 
   const isFP = detail.label.toLowerCase().includes('false') || detail.label.toLowerCase().includes('suspect');
-  const scoreColor = detail.astronet_score >= 0.7 ? 'text-emerald-400' : detail.astronet_score >= 0.45 ? 'text-amber-400' : 'text-rose-400';
+  const scoreColor = detail.astronet_score >= 0.7 ? 'text-emerald-600' : detail.astronet_score >= 0.45 ? 'text-amber-600' : 'text-rose-600';
   const isUntrained = detail.status === 'baseline_untrained' || detail.status === 'untrained_baseline';
 
   return (
-    <div className="space-y-8 pb-12">
+    <div className="space-y-8 pb-12 py-4">
       {/* Header */}
       <header className="space-y-2">
-        <Link href="/candidates" className="text-sm text-indigo-400 hover:text-indigo-300 transition flex items-center gap-1">
+        <Link href="/candidates" className="text-sm text-brand-primary hover:text-brand-secondary transition flex items-center gap-1 font-medium">
           ← Back to Candidates
         </Link>
-        <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div className="flex items-start justify-between gap-4 flex-wrap pt-2">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-slate-100">{detail.targetName}</h1>
-            <p className="text-slate-400 mt-1 max-w-lg text-sm">{detail.shortSummary ?? 'No target summary available.'}</p>
+            <h1 className="text-3xl font-bold tracking-tight text-text-primary">{detail.targetName}</h1>
+            <p className="text-text-secondary mt-1 max-w-lg text-sm">{detail.shortSummary ?? 'No target summary available.'}</p>
           </div>
           <div className="flex items-center gap-3">
             <span className={`px-4 py-2 rounded-xl text-sm font-bold border ${
-              isFP ? 'bg-rose-500/10 text-rose-400 border-rose-500/30' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+              isFP ? 'bg-rose-50 text-rose-700 border-rose-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200'
             }`}>
               {detail.label}
             </span>
@@ -61,27 +60,28 @@ export default async function CandidateDetailPage({ params }: { params: PagePara
       </header>
 
       {/* Score Hero */}
-      <div className="glass rounded-2xl p-6 flex flex-col md:flex-row items-center gap-6">
-        <div className="text-center">
-          <div className="text-xs text-slate-500 uppercase tracking-wider mb-1">AstroNet Score</div>
+      <div className="card p-8 flex flex-col md:flex-row items-center gap-8 border-t-4 border-t-brand-primary">
+        <div className="text-center md:min-w-[200px]">
+          <div className="text-xs text-text-secondary uppercase tracking-wider mb-2 font-semibold">AstroNet Score</div>
           <div className={`text-6xl font-bold font-mono ${scoreColor}`}>
             {detail.astronet_score.toFixed(3)}
           </div>
-          <div className="text-xs text-slate-500 mt-2">0.0 = FP · 1.0 = Planet</div>
+          <div className="text-xs text-text-secondary mt-3">0.0 = FP · 1.0 = Planet</div>
         </div>
-        <div className="flex-1 w-full">
-          <div className="w-full h-3 bg-slate-800 rounded-full overflow-hidden">
+        <div className="flex-1 w-full bg-surface-alt rounded-2xl p-6 border border-border-subtle">
+          <div className="flex justify-between text-xs text-text-secondary mb-2 font-medium">
+            <span>0.0 (False Positive)</span>
+            <span>1.0 (Candidate)</span>
+          </div>
+          <div className="w-full h-4 bg-border-subtle rounded-full overflow-hidden mb-2">
             <div
               className={`h-full rounded-full transition-all ${detail.astronet_score >= 0.7 ? 'bg-emerald-500' : detail.astronet_score >= 0.45 ? 'bg-amber-500' : 'bg-rose-500'}`}
               style={{ width: `${detail.astronet_score * 100}%` }}
             />
           </div>
-          <div className="flex justify-between text-xs text-slate-600 mt-1">
-            <span>0 — False Positive</span>
-            <span>1 — Planet Candidate</span>
-          </div>
+          
           {isUntrained && (
-            <div className="mt-3 text-xs text-amber-400 bg-amber-500/5 border border-amber-500/20 px-3 py-2 rounded-lg">
+            <div className="mt-4 text-xs text-amber-800 bg-amber-50 border border-amber-200 px-4 py-3 rounded-xl font-medium">
               ⚠️ Score is at untrained baseline (~0.5). Will update after model training.
             </div>
           )}
@@ -90,19 +90,19 @@ export default async function CandidateDetailPage({ params }: { params: PagePara
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Physical Parameters */}
-        <div className="glass rounded-2xl p-6">
-          <h2 className="text-lg font-bold text-slate-200 mb-4">Physical Parameters</h2>
+        <div className="card p-6">
+          <h2 className="text-lg font-bold text-text-primary mb-4 border-b border-border-subtle pb-2">Physical Parameters</h2>
           <MetricRow label="BLS Period" value={`${detail.bls_period.toFixed(4)} days`} mono />
           <MetricRow label="Transit Midpoint (T0)" value={detail.bls_t0 !== undefined ? `${detail.bls_t0.toFixed(4)} BKJD` : 'N/A'} mono />
           <MetricRow label="Transit Duration" value={detail.bls_duration !== undefined ? `${(detail.bls_duration * 24).toFixed(2)} hours` : 'N/A'} mono />
-          <MetricRow label="SNR" value={detail.snr.toFixed(2)} mono />
+          <MetricRow label="Signal-to-Noise (SNR)" value={detail.snr.toFixed(2)} mono />
           <MetricRow label="Radius Ratio k (Rp/Rs)" value={detail.fitted_k.toFixed(4)} mono />
           <MetricRow label="Secondary Eclipse Depth" value={detail.secondary_eclipse_depth.toFixed(4)} mono />
         </div>
 
         {/* Vetting Summary */}
-        <div className="glass rounded-2xl p-6">
-          <h2 className="text-lg font-bold text-slate-200 mb-4">Vetting Summary</h2>
+        <div className="card p-6 bg-surface-alt/30">
+          <h2 className="text-lg font-bold text-text-primary mb-4 border-b border-border-subtle pb-2">Vetting Summary</h2>
           <div className="space-y-3">
             <VettingCard
               ok={!detail.odd_even_suspicious}
@@ -129,12 +129,15 @@ export default async function CandidateDetailPage({ params }: { params: PagePara
       </div>
 
       {/* Plots */}
-      <div className="glass rounded-2xl p-6">
-        <h2 className="text-lg font-bold text-slate-200 mb-4">Light Curve Analysis</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="card p-6">
+        <h2 className="text-lg font-bold text-text-primary mb-6 border-b border-border-subtle pb-2">Light Curve Analysis</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <div className="text-sm font-medium text-slate-400 mb-2">Phase-Folded Light Curve</div>
-            <div className="bg-slate-900/50 rounded-xl overflow-hidden border border-slate-800/50 aspect-video flex items-center justify-center">
+            <div className="text-sm font-semibold text-text-secondary mb-3 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-brand-primary"></span>
+              Phase-Folded Light Curve
+            </div>
+            <div className="bg-white rounded-xl overflow-hidden border border-border-subtle aspect-video flex items-center justify-center shadow-sm">
               {detail.foldedPlot ? (
                 <PlotImage
                   src={detail.foldedPlot}
@@ -142,16 +145,19 @@ export default async function CandidateDetailPage({ params }: { params: PagePara
                   className="w-full h-full object-contain"
                 />
               ) : (
-                <div className="text-center text-slate-600 text-sm p-8">
-                  <div className="text-3xl mb-2">📊</div>
+                <div className="text-center text-text-secondary text-sm p-8">
+                  <div className="text-3xl mb-3 opacity-50">📊</div>
                   Plot pending pipeline run
                 </div>
               )}
             </div>
           </div>
           <div>
-            <div className="text-sm font-medium text-slate-400 mb-2">Diagnostic / Vetting Plot</div>
-            <div className="bg-slate-900/50 rounded-xl overflow-hidden border border-slate-800/50 aspect-video flex items-center justify-center">
+            <div className="text-sm font-semibold text-text-secondary mb-3 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-brand-secondary"></span>
+              Diagnostic / Vetting Plot
+            </div>
+            <div className="bg-white rounded-xl overflow-hidden border border-border-subtle aspect-video flex items-center justify-center shadow-sm">
               {detail.diagnosticPlot ? (
                 <PlotImage
                   src={detail.diagnosticPlot}
@@ -159,8 +165,8 @@ export default async function CandidateDetailPage({ params }: { params: PagePara
                   className="w-full h-full object-contain"
                 />
               ) : (
-                <div className="text-center text-slate-600 text-sm p-8">
-                  <div className="text-3xl mb-2">🔬</div>
+                <div className="text-center text-text-secondary text-sm p-8">
+                  <div className="text-3xl mb-3 opacity-50">🔬</div>
                   Plot pending pipeline run
                 </div>
               )}
